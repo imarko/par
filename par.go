@@ -82,8 +82,8 @@ func main() {
 			name: l,
 			cmd:  cmd,
 		}
-		submitter <- j
 		wg.Add(1)
+		submitter <- j
 	}
 	close(submitter)
 	wg.Wait()
