@@ -20,6 +20,7 @@ type job struct {
 var runners = flag.Int("j", 20, "number of concurrent jobs")
 var retries = flag.Int("r", 1, "try failing jobs this many times")
 var replace = flag.String("i", "", "arg pattern to be replaced with inputs")
+var bare = flag.Bool("b", false, "show bare output with no items prefixed")
 
 func runner(in chan *job, out chan *job) {
 	for j := range in {
@@ -44,7 +45,11 @@ func printer(in <-chan *job, wg *sync.WaitGroup) {
 		lines := strings.Split(j.out, "\n")
 		for _, l := range lines {
 			if l != "" {
-				fmt.Printf("%s: %s\n", j.name, l)
+				if *bare {
+					fmt.Println(l)
+				} else {
+					fmt.Printf("%s: %s\n", j.name, l)
+				}
 			}
 		}
 		wg.Done()
