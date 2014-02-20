@@ -19,7 +19,7 @@ type job struct {
 
 var runners = flag.Int("j", 20, "number of concurrent jobs")
 var retries = flag.Int("r", 1, "try failing jobs this many times")
-var replace = flag.String("i", "...", "arg pattern to be replaced with inputs")
+var replace = flag.String("i", "", "arg pattern to be replaced with inputs")
 
 func runner(in chan *job, out chan *job) {
 	for j := range in {
@@ -70,18 +70,13 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		l := scanner.Text()
-		cmd := []string{}
-		added := false
-		for _, a := range preargs {
-			if a == *replace {
-				cmd = append(cmd, l)
-				added = true
-			} else {
-				cmd = append(cmd, a)
+		cmd := make([]string, 0)
+		if *replace == "" {
+			cmd = append(preargs, l)
+		} else {
+			for _, a := range preargs {
+				cmd = append(cmd, strings.Replace(a, *replace, l, -1))
 			}
-		}
-		if !added {
-			cmd = append(cmd, l)
 		}
 		j := &job{
 			name: l,
