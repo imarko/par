@@ -12,8 +12,7 @@ import (
 
 type job struct {
 	name string
-	cmd  string
-	args []string
+	cmd  []string
 	out  string
 	err  error
 }
@@ -25,7 +24,7 @@ var replace = flag.String("i", "...", "arg pattern to be replaced with inputs")
 func runner(in chan *job, out chan *job) {
 	for j := range in {
 		for try := 0; try < *retries; try++ {
-			c := exec.Command(j.cmd, j.args...)
+			c := exec.Command(j.cmd[0], j.cmd[1:]...)
 			o, err := c.CombinedOutput()
 			j.err = err
 			j.out = string(o)
@@ -71,23 +70,22 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		l := scanner.Text()
-		args := []string{}
+		cmd := []string{}
 		added := false
 		for _, a := range preargs {
 			if a == *replace {
-				args = append(args, l)
+				cmd = append(cmd, l)
 				added = true
 			} else {
-				args = append(args, a)
+				cmd = append(cmd, a)
 			}
 		}
 		if !added {
-			args = append(args, l)
+			cmd = append(cmd, l)
 		}
 		j := &job{
 			name: l,
-			cmd:  args[0],
-			args: args[1:],
+			cmd:  cmd,
 		}
 		submitter <- j
 		wg.Add(1)
