@@ -53,8 +53,10 @@ func printer(in <-chan *job, wg *sync.WaitGroup) {
 }
 func main() {
 	flag.Parse()
-	cmd := flag.Arg(0)
-	preargs := flag.Args()[1:]
+	preargs := []string{"/bin/echo"}
+	if flag.NArg() > 0 {
+		preargs = flag.Args()
+	}
 
 	submitter := make(chan *job)
 	results := make(chan *job, 1000)
@@ -69,12 +71,14 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		l := scanner.Text()
-		args := preargs
+		args := []string{}
 		added := false
-		for i, a := range preargs {
+		for _, a := range preargs {
 			if a == *replace {
-				args[i] = l
+				args = append(args, l)
 				added = true
+			} else {
+				args = append(args, a)
 			}
 		}
 		if !added {
@@ -82,8 +86,8 @@ func main() {
 		}
 		j := &job{
 			name: l,
-			cmd:  cmd,
-			args: args,
+			cmd:  args[0],
+			args: args[1:],
 		}
 		submitter <- j
 		wg.Add(1)
