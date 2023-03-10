@@ -2,7 +2,7 @@ Simple utility to exectue a command for multiple arguments supplied on
 stdin, concurrently. Similar to xargs -P or parallel but customized
 for my preferences.
 
-Installation: go install github.com/imarko/par
+Installation: go install github.com/imarko/par@latest
 
 Usage of ./par:
   -b	show bare output without prefix
