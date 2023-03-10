@@ -2,13 +2,14 @@ Simple utility to exectue a command for multiple arguments supplied on
 stdin, concurrently. Similar to xargs -P or parallel but customized
 for my preferences.
 
-Installation: go get github.com/imarko/par
+Installation: go install github.com/imarko/par
 
-Usage of par:
-  -I="...": arg pattern to be replaced with inputs
-  -j=20: number of concurrent jobs
-  -r=1: try failing jobs this many times
-
-Bugs: the pattern substitution is currently done on a per-word basis
-so specifying the substitution pattern in the middle of a word doesn't
-work.
+Usage of ./par:
+  -b	show bare output without prefix
+  -i string
+        arg pattern to be replaced with inputs
+  -j int
+        number of concurrent jobs (default 20)
+  -r int
+        try failing jobs this many times (default 1)
+  -v	verbose output, show task start/finish and exit status

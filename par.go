@@ -20,15 +20,26 @@ type job struct {
 var runners = flag.Int("j", 20, "number of concurrent jobs")
 var retries = flag.Int("r", 1, "try failing jobs this many times")
 var replace = flag.String("i", "", "arg pattern to be replaced with inputs")
-var bare = flag.Bool("b", false, "show bare output with no items prefixed")
+var bare = flag.Bool("b", false, "show bare output without prefix")
+var verbose = flag.Bool("v", false, "verbose output, show task start/finish and exit status")
 
 func runner(in chan *job, out chan *job) {
 	for j := range in {
 		for try := 0; try < *retries; try++ {
+			if *verbose {
+				fmt.Printf("%s: STARTING\n", j.name)
+			}
 			c := exec.Command(j.cmd[0], j.cmd[1:]...)
 			o, err := c.CombinedOutput()
 			j.err = err
 			j.out = string(o)
+			if *verbose {
+				if err == nil {
+					fmt.Printf("%s: SUCCEES\n", j.name)
+				} else {
+					fmt.Printf("%s: FAILED: %s\n", j.name, err)
+				}
+			}
 			if err == nil {
 				break
 			}
